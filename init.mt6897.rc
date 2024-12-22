@@ -876,10 +876,6 @@ on boot
     # Power Manager
     write /sys/power/pm_freeze_timeout 2000
 
-    # Touch feature
-    chown system system /dev/xiaomi-touch
-    chmod 0660 /dev/xiaomi-touch
-
 on property:vold.decrypt=trigger_reset_main
     setprop sys.boot_completed 0
     setprop dev.bootcomplete 0
@@ -924,6 +920,15 @@ on property:vendor.audio.voice.receiver.status=on
 on property:vendor.audio.voice.receiver.status=off
     write /sys/class/thermal/thermal_message/voice_receiver_state 10001
 
+# TMP
+on property:sys.boot_completed=1
+    exec_background /system/bin/settings put system min_refresh_rate 60
+
+on boot
+    # selinux nodes, hide permissive state
+    chmod 0640 /sys/fs/selinux/enforce
+    chmod 0440 /sys/fs/selinux/policy
+
 service vendor.audio-hal /vendor/bin/hw/android.hardware.audio.service
     override
     class hal
@@ -935,6 +940,3 @@ service vendor.audio-hal /vendor/bin/hw/android.hardware.audio.service
     task_profiles ProcessCapacityHigh HighPerformance
     socket audio_hw_socket seqpacket 0666 system system
     onrestart restart audioserver
-	
-on property:sys.boot_completed=1
-    exec_background -- /system/bin/settings put system min_refresh_rate 60

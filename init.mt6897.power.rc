@@ -52,6 +52,7 @@ on post-fs-data
     write /sys/block/dm-4/queue/read_ahead_kb 2048
     write /sys/block/dm-5/queue/read_ahead_kb 2048
 
+    write /proc/sys/kernel/sched_pelt_multiplier 4
     write /proc/sys/kernel/sched_util_clamp_min_rt_default 0
 
     # boot perf. tune
@@ -89,6 +90,10 @@ on property:sys.boot_completed=1
     write /sys/devices/system/cpu/cpufreq/policy4/scaling_min_freq 0
     write /sys/devices/system/cpu/cpufreq/policy7/scaling_min_freq 0
     write /sys/class/devfreq/mtk-dvfsrc-devfreq/userspace/set_freq 0
+    # Set Governor
+    write /sys/devices/system/cpu/cpufreq/policy0/scaling_governor sugov_ext
+    write /sys/devices/system/cpu/cpufreq/policy4/scaling_governor sugov_ext
+    write /sys/devices/system/cpu/cpufreq/policy7/scaling_governor sugov_ext
 
     # Configure clamps for standard task groups.
     # system-background
@@ -125,9 +130,6 @@ on property:sys.boot_completed=1
 
     # start cpuqos
     write /sys/devices/system/cpu/cpuqos/cpuqos_boot_complete 1
-
-    # Enable PowerHAL hint processing
-    setprop vendor.powerhal.init 1
 
 service vendor.hwcomposer-3-2 /vendor/bin/hw/android.hardware.graphics.composer@3.2-service
     override
